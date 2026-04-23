@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}{{ state['name'] }} — IndiaBiz{% endblock %}
+{% block content %}
+<div class="state-page">
+  <div class="state-header">
+    <div class="state-header-inner">
+      <div class="breadcrumb"><a href="{{ url_for('index') }}">Home</a> → <a href="{{ url_for('explore') }}">Explore</a> → {{ state['name'] }}</div>
+      <div class="region-badge">{{ state['region'] }} India</div>
+      <h1>{{ state['name'] }} <span class="state-code" style="font-size:18px;vertical-align:middle;">{{ state['code'] }}</span></h1>
+      <p style="color:var(--gray);">Capital: {{ state['capital'] }} | Select a city to browse local businesses</p>
+    </div>
+  </div>
+  <div class="container">
+    <div class="cities-grid">
+      {% for city in cities %}
+      <a href="{{ url_for('city_page', city_id=city['id']) }}" class="city-card {% if city['is_major'] %}major{% endif %}">
+        {% if city['is_major'] %}<div class="major-badge">⭐ Major City</div>{% endif %}
+        <h3>{{ city['name'] }}</h3>
+        <div class="biz-count-tag">{{ city['biz_count'] }} businesses listed</div>
+        <span class="city-cta">Browse →</span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}{{ city['name'] }} — IndiaBiz{% endblock %}
+{% block content %}
+<div class="city-page">
+  <div class="city-header">
+    <div class="city-header-inner">
+      <div>
+        <div class="breadcrumb"><a href="{{ url_for('index') }}">Home</a> → <a href="{{ url_for('explore') }}">Explore</a> → <a href="{{ url_for('state_page', state_id=city['state_id']) }}">{{ city['state_name'] }}</a> → {{ city['name'] }}</div>
+        <h1>{{ city['name'] }}</h1>
+        <p style="color:var(--gray);">{{ city['state_name'] }} | Browse local businesses by area and category</p>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <button class="btn-hero btn-nearby" onclick="getNearbyCity({{ city['lat'] }},{{ city['lng'] }})">📍 Nearby in {{ city['name'] }}</button>
+      </div>
+    </div>
+  </div>
+  <div class="container" style="padding-top:40px;">
+
+    {% if city_info %}
+    <!-- ── City Specialities ──────────────────────────────── -->
+    <div class="section-block" style="margin-bottom:40px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+        <span style="font-size:28px;">✨</span>
+        <div>
+          <h2 style="margin:0;">{{ city['name'] }} Specialities</h2>
+          <p style="margin:4px 0 0;color:var(--gray);font-size:14px;">{{ city_info['tagline'] }} — famous foods &amp; where to find them</p>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;">
+        {% for spec in city_info['specialities'] %}
+        <div style="background:var(--white);border:1.5px solid var(--border);border-radius:14px;padding:20px;">
+          <div style="font-size:30px;margin-bottom:8px;">{{ spec['emoji'] }}</div>
+          <h3 style="margin:0 0 6px;font-size:17px;">{{ spec['name'] }}</h3>
+          <p style="font-size:13px;color:var(--gray);margin:0 0 14px;line-height:1.5;">{{ spec['desc'] }}</p>
+          <div style="font-size:12px;font-weight:700;color:var(--teal);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px;">📍 Where to find it</div>
+          {% for w in spec['where'] %}
+          <div style="background:var(--teal-light);border-radius:8px;padding:10px 12px;margin-bottom:8px;">
+            <div style="font-weight:600;font-size:13px;color:var(--charcoal);">{{ w['place'] }}</div>
+            <div style="font-size:12px;color:var(--gray);margin:2px 0;">📌 {{ w['area'] }}</div>
+            <div style="font-size:12px;color:var(--teal);font-style:italic;">💡 {{ w['tip'] }}</div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- ── Tourist Places ──────────────────────────────────── -->
+    <div class="section-block" style="margin-bottom:40px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+        <span style="font-size:28px;">🗺️</span>
+        <div>
+          <h2 style="margin:0;">Must-Visit Places</h2>
+          <p style="margin:4px 0 0;color:var(--gray);font-size:14px;">Top tourist attractions in {{ city['name'] }}</p>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;">
+        {% for tp in city_info['tourist_places'] %}
+        <div style="background:linear-gradient(135deg,#fff9f0,#fff);border:1.5px solid #ffe0b2;border-radius:14px;padding:20px;">
+          <div style="font-size:34px;margin-bottom:8px;">{{ tp['emoji'] }}</div>
+          <h3 style="margin:0 0 6px;font-size:17px;">{{ tp['name'] }}</h3>
+          <p style="font-size:13px;color:var(--gray);margin:0 0 10px;line-height:1.5;">{{ tp['desc'] }}</p>
+          <div style="font-size:12px;color:#e67e22;margin-bottom:4px;">📌 {{ tp['area'] }}</div>
+          <div style="font-size:12px;color:var(--gray);font-style:italic;background:#fff3e0;border-radius:6px;padding:6px 10px;">💡 {{ tp['tip'] }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    {% if categories %}
+    <div class="section-block" style="margin-bottom:30px;">
+      <h2>Browse by Category</h2>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;">
+        {% for cat in categories %}
+        <a href="{{ url_for('search') }}?city_id={{ city['id'] }}&category={{ cat['category']|urlencode }}"
+           style="background:var(--teal-light);color:var(--teal);padding:8px 16px;border-radius:20px;font-size:13px;font-weight:600;">
+          {{ cat['category'] }} <span style="opacity:.7;">({{ cat['cnt'] }})</span>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <h2 style="margin-bottom:20px;">Areas in {{ city['name'] }}</h2>
+    <div class="places-grid">
+      {% for place in places %}
+      <a href="{{ url_for('place', place_id=place['id']) }}" class="place-card">
+        <div class="place-card-header">
+          <div class="place-icon">📍</div>
+          <h3>{{ place['name'] }}</h3>
+        </div>
+        <div class="place-card-body">
+          <div class="place-desc">{{ place['biz_count'] }} businesses available</div>
+          <span class="explore-link" style="color:var(--teal);">View Businesses →</span>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function getNearbyCity(lat, lng) {
+  window.location.href = `/nearby?lat=${lat}&lng=${lng}&radius=15`;
+}
+</script>
+{% endblock %}

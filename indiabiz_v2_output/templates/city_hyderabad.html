@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% block title %}Hyderabad — IndiaBiz{% endblock %}
+{% block content %}
+<div class="city-page">
+  <div class="city-header">
+    <div class="city-header-inner">
+      <div>
+        <div class="breadcrumb"><a href="{{ url_for('index') }}">Home</a> → <a href="{{ url_for('explore') }}">Explore</a> → <a href="{{ url_for('state_page', state_id=city['state_id']) }}">Telangana</a> → Hyderabad</div>
+        <h1>Hyderabad <span style="color:var(--gray);font-size:18px;">🌶️</span></h1>
+        <p style="color:var(--gray);">Pearl City | 20 areas · 15 categories · 6000+ businesses</p>
+      </div>
+      <button class="btn-hero btn-nearby" onclick="getNearby()">📍 Nearby in Hyderabad</button>
+    </div>
+  </div>
+
+  <div class="container" style="padding-top:40px;">
+
+    {% if city_info %}
+    <!-- ── City Specialities ──────────────────────────────── -->
+    <div class="section-block" style="margin-bottom:40px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+        <span style="font-size:28px;">✨</span>
+        <div>
+          <h2 style="margin:0;">Hyderabad Specialities</h2>
+          <p style="margin:4px 0 0;color:var(--gray);font-size:14px;">{{ city_info['tagline'] }} — famous foods &amp; where to find them</p>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;">
+        {% for spec in city_info['specialities'] %}
+        <div style="background:var(--white);border:1.5px solid var(--border);border-radius:14px;padding:20px;">
+          <div style="font-size:30px;margin-bottom:8px;">{{ spec['emoji'] }}</div>
+          <h3 style="margin:0 0 6px;font-size:17px;">{{ spec['name'] }}</h3>
+          <p style="font-size:13px;color:var(--gray);margin:0 0 14px;line-height:1.5;">{{ spec['desc'] }}</p>
+          <div style="font-size:12px;font-weight:700;color:var(--teal);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px;">📍 Where to find it</div>
+          {% for w in spec['where'] %}
+          <div style="background:var(--teal-light);border-radius:8px;padding:10px 12px;margin-bottom:8px;">
+            <div style="font-weight:600;font-size:13px;color:var(--charcoal);">{{ w['place'] }}</div>
+            <div style="font-size:12px;color:var(--gray);margin:2px 0;">📌 {{ w['area'] }}</div>
+            <div style="font-size:12px;color:var(--teal);font-style:italic;">💡 {{ w['tip'] }}</div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- ── Tourist Places ──────────────────────────────────── -->
+    <div class="section-block" style="margin-bottom:40px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+        <span style="font-size:28px;">🗺️</span>
+        <div>
+          <h2 style="margin:0;">Must-Visit Places in Hyderabad</h2>
+          <p style="margin:4px 0 0;color:var(--gray);font-size:14px;">Top tourist attractions you can't miss</p>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;">
+        {% for tp in city_info['tourist_places'] %}
+        <div style="background:linear-gradient(135deg,#fff9f0,#fff);border:1.5px solid #ffe0b2;border-radius:14px;padding:20px;">
+          <div style="font-size:34px;margin-bottom:8px;">{{ tp['emoji'] }}</div>
+          <h3 style="margin:0 0 6px;font-size:17px;">{{ tp['name'] }}</h3>
+          <p style="font-size:13px;color:var(--gray);margin:0 0 10px;line-height:1.5;">{{ tp['desc'] }}</p>
+          <div style="font-size:12px;color:#e67e22;margin-bottom:4px;">📌 {{ tp['area'] }}</div>
+          <div style="font-size:12px;color:var(--gray);font-style:italic;background:#fff3e0;border-radius:6px;padding:6px 10px;">💡 {{ tp['tip'] }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <div style="display:flex;gap:30px;align-items:flex-start;flex-wrap:wrap;margin-bottom:40px;">
+
+      <div style="flex:1;min-width:280px;">
+        <svg viewBox="0 0 600 560" class="hyderabad-svg" xmlns="http://www.w3.org/2000/svg">
+          {% for z in zones %}
+          <a href="{{ url_for('zone', city_id=city['id'], zone_name=z['zone']) }}">
+            {% if z['zone'] == 'North' %}
+            <polygon points="300,20 500,120 300,220 100,120" class="zone-poly zone-north" data-zone="North"/>
+            <text x="300" y="110" text-anchor="middle" class="zone-label">↑ NORTH</text>
+            <text x="300" y="130" text-anchor="middle" class="zone-sublabel">Secunderabad · Malkajgiri</text>
+            {% elif z['zone'] == 'South' %}
+            <polygon points="300,340 500,440 300,540 100,440" class="zone-poly zone-south" data-zone="South"/>
+            <text x="300" y="430" text-anchor="middle" class="zone-label">↓ SOUTH</text>
+            <text x="300" y="450" text-anchor="middle" class="zone-sublabel">Mehdipatnam · Tolichowki</text>
+            {% elif z['zone'] == 'West' %}
+            <polygon points="100,120 300,220 300,340 100,440" class="zone-poly zone-west" data-zone="West"/>
+            <text x="160" y="285" text-anchor="middle" class="zone-label">← WEST</text>
+            <text x="160" y="305" text-anchor="middle" class="zone-sublabel">Kukatpally</text>
+            {% elif z['zone'] == 'East' %}
+            <polygon points="300,220 500,120 500,440 300,340" class="zone-poly zone-east" data-zone="East"/>
+            <text x="440" y="285" text-anchor="middle" class="zone-label">→ EAST</text>
+            <text x="440" y="305" text-anchor="middle" class="zone-sublabel">Uppal · LB Nagar</text>
+            {% elif z['zone'] == 'Central' %}
+            <polygon points="300,220 370,280 300,340 230,280" class="zone-poly zone-central" data-zone="Central"/>
+            <text x="300" y="275" text-anchor="middle" class="zone-label" style="font-size:11px">CENTRAL</text>
+            {% endif %}
+          </a>
+          {% endfor %}
+          <circle cx="300" cy="280" r="8" fill="#e74c3c" opacity="0.9"/>
+        </svg>
+      </div>
+
+      <div class="zone-info-panel" id="zoneInfo" style="flex:1;min-width:220px;">
+        <h3>👆 Click a zone to explore</h3>
+        <p>Hyderabad has 5 zones with unique places and local businesses. Click any zone on the map to see its neighbourhoods.</p>
+      </div>
+    </div>
+
+    <h2 style="margin-bottom:20px;">Browse by Zone</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;">
+      {% for z in zones %}
+      {% set zone_info = {
+        'North': ('🔵', 'Secunderabad, Malkajgiri, Trimulgherry, Alwal'),
+        'South': ('🟢', 'Mehdipatnam, Tolichowki, Attapur, Rajendranagar'),
+        'East':  ('🟠', 'LB Nagar, Uppal, Hayathnagar, Ghatkesar'),
+        'West':  ('🟣', 'Kukatpally, Miyapur, Kondapur, Manikonda'),
+        'Central': ('🔴', 'Charminar, Banjara Hills, Jubilee Hills, Abids'),
+      } %}
+      <a href="{{ url_for('zone', city_id=city['id'], zone_name=z['zone']) }}" class="zone-card zone-{{ z['zone'].lower() }}"
+         style="background:var(--white);border:1.5px solid var(--border);border-radius:12px;padding:20px;display:block;color:var(--charcoal)!important;">
+        <div style="font-size:28px;margin-bottom:8px;">{{ zone_info.get(z['zone'],('🗺️',''))[0] }}</div>
+        <h3 style="font-size:16px;margin-bottom:4px;">{{ z['zone'] }} Hyderabad</h3>
+        <p style="font-size:12px;color:var(--gray);margin-bottom:8px;">{{ zone_info.get(z['zone'],('',''))[1] }}</p>
+        <div style="font-size:12px;color:var(--teal);font-weight:600;">{{ z['place_count'] }} areas · {{ z['biz_count'] }} businesses</div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+const zoneData = {
+  North:   { desc:'Secunderabad, Malkajgiri, Trimulgherry, Alwal', famous:'Railway Hub, Clock Tower, Cantonment Area' },
+  South:   { desc:'Mehdipatnam, Tolichowki, Attapur, Rajendranagar', famous:'Bustling markets, Film industry, IARI Campus' },
+  East:    { desc:'LB Nagar, Uppal, Hayathnagar, Ghatkesar', famous:'Uppal Stadium, Metro hub, Pharma industries' },
+  West:    { desc:'Kukatpally, Miyapur, Kondapur, Manikonda', famous:'Cyber City, IT parks, Major malls' },
+  Central: { desc:'Charminar, Banjara Hills, Jubilee Hills, Abids', famous:'Charminar, Laad Bazaar, Fine dining, Film industry' },
+};
+document.querySelectorAll('.zone-poly').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    const zone = el.dataset.zone;
+    const d = zoneData[zone];
+    document.getElementById('zoneInfo').innerHTML = `
+      <h3>${zone} Hyderabad</h3>
+      <p><strong>Areas:</strong> ${d.desc}</p>
+      <p><strong>Famous for:</strong> ${d.famous}</p>
+      <a href="/city/{{ city['id'] }}/zone/${zone}" class="btn-hero" style="display:inline-block;margin-top:10px;padding:8px 18px;">Explore ${zone} →</a>
+    `;
+  });
+});
+function getNearby() {
+  navigator.geolocation.getCurrentPosition(
+    p => window.location.href = `/nearby?lat=${p.coords.latitude}&lng=${p.coords.longitude}&radius=10`,
+    () => alert('Could not get location.')
+  );
+}
+</script>
+{% endblock %}

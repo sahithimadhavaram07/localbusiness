@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Book Appointment — {{ biz['name'] }}{% endblock %}
+{% block content %}
+<div class="auth-page" style="align-items:flex-start;padding-top:60px;">
+  <div class="auth-card" style="max-width:520px;">
+    <div class="auth-header">
+      <div class="auth-icon">📅</div>
+      <h2>Book Appointment</h2>
+      <p>at <strong>{{ biz['name'] }}</strong></p>
+      <div style="font-size:12px;color:var(--gray);margin-top:4px;font-family:monospace;">ID: {{ biz['business_uid'] }}</div>
+    </div>
+    <form action="{{ url_for('book_appointment', biz_id=biz['id']) }}" method="post" class="auth-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Date</label>
+          <input type="date" name="date" required min="{{ '' }}" />
+        </div>
+        <div class="form-group">
+          <label>Time</label>
+          <input type="time" name="time" required />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Notes (optional)</label>
+        <textarea name="notes" rows="3" placeholder="Any special requirements or notes..."></textarea>
+      </div>
+      <button type="submit" class="btn-submit">Confirm Booking</button>
+    </form>
+    <div style="text-align:center;margin-top:16px;">
+      <a href="{{ url_for('business_detail', biz_id=biz['id']) }}" style="font-size:14px;color:var(--gray);">← Back to Business</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Set minimum date to today
+document.querySelector('input[type=date]').min = new Date().toISOString().split('T')[0];
+</script>
+{% endblock %}

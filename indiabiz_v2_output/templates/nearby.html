@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}Nearby Businesses — IndiaBiz{% endblock %}
+{% block content %}
+<div class="nearby-page">
+  <div class="nearby-header">
+    <h1>📍 Businesses <span class="accent">Near You</span></h1>
+    <p>Showing verified businesses within your selected radius</p>
+  </div>
+
+  <div class="nearby-controls">
+    <div class="form-group">
+      <label>📍 Your Location</label>
+      <div style="display:flex;gap:8px;">
+        <input type="text" id="latInput" placeholder="Latitude" value="{{ lat or '' }}" style="flex:1;padding:10px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;" />
+        <input type="text" id="lngInput" placeholder="Longitude" value="{{ lng or '' }}" style="flex:1;padding:10px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;" />
+      </div>
+    </div>
+    <div class="form-group">
+      <label>📏 Radius (km)</label>
+      <select id="radiusInput" style="padding:10px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;">
+        {% for r in [2, 5, 10, 15, 25, 50] %}
+        <option value="{{ r }}" {% if radius == r %}selected{% endif %}>{{ r }} km</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-group">
+      <label>🗂️ Category (optional)</label>
+      <select id="catInput" style="padding:10px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;">
+        <option value="">All Categories</option>
+        {% if categories %}
+          {% for cat in categories %}
+          <option value="{{ cat['category'] }}" {% if category == cat['category'] %}selected{% endif %}>{{ cat['category'] }}</option>
+          {% endfor %}
+        {% endif %}
+      </select>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <button class="locate-btn" onclick="getLocation()">📍 Use GPS Location</button>
+      <button onclick="applyFilters()" style="padding:10px 20px;background:var(--teal);color:var(--white);border:none;border-radius:8px;font-weight:600;cursor:pointer;">Apply Filters</button>
+    </div>
+  </div>
+
+  {% if lat and lng %}
+    <p class="nearby-result-count">
+      Found <strong>{{ businesses|length }}</strong> businesses within <strong>{{ radius }} km</strong>
+      of your location
+      {% if category %} in <strong>{{ category }}</strong>{% endif %}
+    </p>
+
+    {% if businesses %}
+    <div class="businesses-grid">
+      {% for biz in businesses %}
+      <a href="{{ url_for('business_detail', biz_id=biz['id']) }}" class="biz-card">
+        <div class="biz-card-top">
+          <span class="biz-category-badge">{{ biz['category'] }}</span>
+          <span class="distance-badge">{{ biz['distance'] }} km</span>
+        </div>
+        <h3>{{ biz['name'] }}</h3>
+        <div class="biz-uid">🪪 {{ biz['business_uid'] }}</div>
+        <div class="biz-location">📍 {{ biz['place_name'] }}, {{ biz['city_name'] }}, {{ biz['state_name'] }}</div>
+        <p class="biz-address">{{ biz['address'] }}</p>
+        <div class="biz-footer">
+          <span>📞 {{ biz['phone'] }}</span>
+          <span>🕐 {{ biz['timing'] }}</span>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">🔍</div>
+      <h3>No businesses found nearby</h3>
+      <p>Try increasing the radius or changing the category filter.</p>
+      <a href="{{ url_for('explore') }}" class="btn-hero">Browse All States</a>
+    </div>
+    {% endif %}
+
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">📍</div>
+    <h3>Share Your Location</h3>
+    <p>Click "Use GPS Location" to automatically detect your position, or manually enter coordinates above.</p>
+    <button class="btn-hero btn-nearby" onclick="getLocation()">📍 Use My Location</button>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function getLocation() {
+  if (!navigator.geolocation) { alert('Geolocation not supported.'); return; }
+  navigator.geolocation.getCurrentPosition(pos => {
+    document.getElementById('latInput').value = pos.coords.latitude.toFixed(6);
+    document.getElementById('lngInput').value = pos.coords.longitude.toFixed(6);
+    applyFilters();
+  }, () => alert('Could not get your location. Please allow location access.'));
+}
+
+function applyFilters() {
+  const lat = document.getElementById('latInput').value;
+  const lng = document.getElementById('lngInput').value;
+  const radius = document.getElementById('radiusInput').value;
+  const cat = document.getElementById('catInput').value;
+  if (!lat || !lng) { alert('Please enter or detect your location first.'); return; }
+  let url = `/nearby?lat=${lat}&lng=${lng}&radius=${radius}`;
+  if (cat) url += `&category=${encodeURIComponent(cat)}`;
+  window.location.href = url;
+}
+</script>
+{% endblock %}

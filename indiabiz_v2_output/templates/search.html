@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Search — IndiaBiz{% endblock %}
+{% block content %}
+<div class="search-page">
+  <div class="search-header">
+    <h1>🔍 Search Businesses</h1>
+    <p>Search by name, category, city — or find instantly by Business ID</p>
+  </div>
+
+  <!-- Simple search bar -->
+  <div class="simple-search-box">
+    <form action="{{ url_for('search') }}" method="get">
+      <div class="big-search-row">
+        <input type="text" name="q" value="{{ q or '' }}"
+               placeholder="Type business name, category or city..." autofocus />
+        <button type="submit">Search</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- UID search -->
+  <div class="uid-finder">
+    <h3>🪪 Search by Business ID</h3>
+    <form action="{{ url_for('search') }}" method="get">
+      <div class="uid-finder-row">
+        <input type="text" name="uid" value="{{ uid or '' }}"
+               placeholder="Enter ID — e.g. TS-HYD-00001"
+               style="font-family:monospace;text-transform:uppercase;" />
+        <button type="submit">Find</button>
+      </div>
+    </form>
+    <p style="font-size:12px;color:var(--gray);margin-top:6px;">Business IDs appear on every business page and your appointment receipts.</p>
+  </div>
+
+  <!-- Results -->
+  {% if searched %}
+    {% if results %}
+    <div style="margin:20px 0 16px;">
+      <strong>{{ results|length }} result{% if results|length != 1 %}s{% endif %}</strong>
+      {% if q %} for "<em>{{ q }}</em>"{% endif %}
+      {% if uid %} for ID <code style="font-family:monospace;background:var(--gray-light);padding:2px 6px;border-radius:4px;">{{ uid }}</code>{% endif %}
+    </div>
+    <div class="businesses-grid">
+      {% for biz in results %}
+      <a href="{{ url_for('business_detail', biz_id=biz['id']) }}" class="biz-card">
+        <div class="biz-card-top">
+          <span class="biz-category-badge">{{ biz['category'] }}</span>
+          <span class="biz-status approved">✓ Verified</span>
+        </div>
+        <h3>{{ biz['name'] }}</h3>
+        <div class="biz-uid">🪪 {{ biz['business_uid'] }}</div>
+        <div class="biz-location">📍 {{ biz['place_name'] }}, {{ biz['city_name'] }}, {{ biz['state_name'] }}</div>
+        <p class="biz-address">{{ biz['address'] }}</p>
+        <div class="biz-footer">
+          <span>📞 {{ biz['phone'] }}</span>
+          <span>🕐 {{ biz['timing'] }}</span>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">😔</div>
+      <h3>No results found</h3>
+      {% if uid %}
+      <p>No business found with ID <strong style="font-family:monospace;">{{ uid }}</strong>. Double-check the ID and try again.</p>
+      {% else %}
+      <p>Try different keywords — a business name, category like "Grocery", or a city name.</p>
+      {% endif %}
+      <a href="{{ url_for('explore') }}" class="btn-hero" style="margin-top:16px;">Browse by State</a>
+    </div>
+    {% endif %}
+  {% else %}
+  <div class="empty-state" style="padding:40px 20px;">
+    <div class="empty-icon">🔍</div>
+    <h3>Start searching</h3>
+    <p>Enter a business name, category (e.g. "Restaurant"), city name, or Business ID above.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}Add Business — IndiaBiz{% endblock %}
+{% block content %}
+<div class="auth-page" style="align-items:flex-start;padding:60px 24px;">
+  <div class="auth-card" style="max-width:680px;">
+    <div class="auth-header">
+      <div class="auth-icon">🏪</div>
+      <h2>List Your Business</h2>
+      <p>Submit your business for admin review. You'll receive a unique Business ID.</p>
+    </div>
+    <form action="{{ url_for('add_business') }}" method="post" class="auth-form">
+
+      <div class="form-group">
+        <label>Business Name *</label>
+        <input type="text" name="name" required placeholder="e.g. Raj Electronics & Repair" />
+      </div>
+
+      <div class="form-group">
+        <label>Category *</label>
+        <select name="category" required>
+          <option value="">Select Category</option>
+          {% for cat in categories %}
+          <option value="{{ cat }}">{{ cat }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>State *</label>
+          <select id="stateSelect" onchange="loadCitiesForm(this.value)" required>
+            <option value="">Select State</option>
+            {% for s in states %}
+            <option value="{{ s['id'] }}">{{ s['name'] }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>City *</label>
+          <select id="citySelect" onchange="loadPlacesForm(this.value)" required>
+            <option value="">Select City</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Area / Place *</label>
+        <select name="place_id" id="placeSelect" required>
+          <option value="">Select Area</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Address *</label>
+        <input type="text" name="address" required placeholder="Shop No, Street, Area" />
+      </div>
+
+      <div class="form-group">
+        <label>Description *</label>
+        <textarea name="description" rows="3" required placeholder="Describe your business, products or services..."></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Phone *</label>
+          <input type="tel" name="phone" required placeholder="10-digit number" />
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" name="email" placeholder="business@email.com" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Timings *</label>
+        <input type="text" name="timing" required placeholder="e.g. 9:00 AM – 9:00 PM" />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Latitude (optional)</label>
+          <input type="number" name="lat" step="0.000001" placeholder="e.g. 17.385044" id="latField"/>
+        </div>
+        <div class="form-group">
+          <label>Longitude (optional)</label>
+          <input type="number" name="lng" step="0.000001" placeholder="e.g. 78.486671" id="lngField"/>
+        </div>
+      </div>
+      <button type="button" onclick="detectLocation()" style="padding:8px 14px;background:var(--gold-light);color:var(--gold);border:1.5px solid var(--gold);border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;margin-bottom:8px;">📍 Auto-detect My Location</button>
+
+      <button type="submit" class="btn-submit">Submit for Review</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const allCities = {{ cities | tojson }};
+const allPlaces = {{ places | tojson }};
+
+function loadCitiesForm(stateId) {
+  const cs = document.getElementById('citySelect');
+  cs.innerHTML = '<option value="">Select City</option>';
+  document.getElementById('placeSelect').innerHTML = '<option value="">Select Area</option>';
+  if (!stateId) return;
+  allCities.filter(c => c.state_id == stateId).forEach(c => {
+    cs.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+  });
+}
+
+function loadPlacesForm(cityId) {
+  const ps = document.getElementById('placeSelect');
+  ps.innerHTML = '<option value="">Select Area</option>';
+  if (!cityId) return;
+  allPlaces.filter(p => p.city_id == cityId).forEach(p => {
+    ps.innerHTML += `<option value="${p.id}">${p.name}</option>`;
+  });
+}
+
+function detectLocation() {
+  if (!navigator.geolocation) { alert('Geolocation not supported.'); return; }
+  navigator.geolocation.getCurrentPosition(pos => {
+    document.getElementById('latField').value = pos.coords.latitude.toFixed(6);
+    document.getElementById('lngField').value = pos.coords.longitude.toFixed(6);
+  }, () => alert('Could not get location.'));
+}
+</script>
+{% endblock %}

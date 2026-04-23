@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block title %}IndiaBiz — India's Local Business Hub{% endblock %}
+
+{% block head %}
+<style>
+  .features-grid { display:grid!important; grid-template-columns:repeat(4,1fr)!important; gap:24px; max-width:1100px; margin:0 auto; }
+  @media(max-width:900px){ .features-grid{ grid-template-columns:repeat(2,1fr)!important; } }
+  @media(max-width:500px){ .features-grid{ grid-template-columns:1fr!important; } }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-badge">🇮🇳 India's Own Business Directory</div>
+    <h1 class="hero-title">Find Local Businesses <br><span class="accent">Near You</span> — Across India</h1>
+    <p class="hero-sub">From Hyderabad to Delhi, Mumbai to Chennai — discover verified local businesses, book appointments, and support India's entrepreneurs.</p>
+
+    <div class="hero-search">
+      <input type="text" id="heroSearch" placeholder="Search business name, category or city..." onkeydown="if(event.key==='Enter') heroGoSearch()"/>
+      <button onclick="heroGoSearch()">Search</button>
+    </div>
+
+    <div class="hero-actions">
+      <button class="btn-hero btn-nearby" onclick="getNearby()">📍 Find Nearby</button>
+      <a href="{{ url_for('explore') }}" class="btn-hero btn-outline">Explore by State</a>
+      <a href="{{ url_for('register') }}" class="btn-hero btn-outline">List Your Business</a>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="india-stats-visual">
+      <div class="stat-bubble highlight">
+        <div class="num">{{ states|length }}</div>
+        <div class="lbl">States & UTs</div>
+      </div>
+      <div class="stat-bubble">
+        <div class="num">6000+</div>
+        <div class="lbl">Businesses</div>
+      </div>
+      <div class="stat-bubble">
+        <div class="num">15</div>
+        <div class="lbl">Categories</div>
+      </div>
+      <div class="stat-bubble highlight">
+        <div class="num">📍</div>
+        <div class="lbl">GPS Nearby</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="nearby-banner">
+  <div>
+    <h3>📍 Discover Businesses Near You</h3>
+    <p>Allow location access to instantly see verified businesses in your area</p>
+  </div>
+  <button class="btn-locate" onclick="getNearby()">Use My Location →</button>
+</div>
+
+<section class="features">
+  <div class="container">
+    <h2 class="section-title">Why IndiaBiz?</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">✅</div>
+        <h3>Admin Verified</h3>
+        <p>Every business is manually reviewed before listing — only trusted businesses.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📍</div>
+        <h3>GPS-Based Discovery</h3>
+        <p>Share your location and instantly find businesses nearest to you, anywhere in India.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🪪</div>
+        <h3>Unique Business ID</h3>
+        <p>Every business has a unique ID (e.g. TS-HYD-00001). Search directly by ID.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📅</div>
+        <h3>Easy Appointments</h3>
+        <p>Book appointments directly with businesses — no phone calls needed.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="states-section">
+  <div class="container">
+    <h2 class="section-title">Browse by State</h2>
+    <div class="states-grid">
+      {% for state in states %}
+      <a href="{{ url_for('state_page', state_id=state['id']) }}" class="state-card">
+        <div class="state-code">{{ state['code'] }}</div>
+        <h3>{{ state['name'] }}</h3>
+        <div class="capital">🏛️ {{ state['capital'] }}</div>
+        <div class="region">{{ state['region'] }} India</div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+function heroGoSearch() {
+  const q = document.getElementById('heroSearch').value.trim();
+  if (q) window.location.href = '/search?q=' + encodeURIComponent(q);
+}
+function getNearby() {
+  if (!navigator.geolocation) {
+    alert('Geolocation not supported by your browser.');
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(
+    pos => window.location.href = `/nearby?lat=${pos.coords.latitude}&lng=${pos.coords.longitude}&radius=10`,
+    () => alert('Could not get your location. Please allow location access.')
+  );
+}
+</script>
+{% endblock %}

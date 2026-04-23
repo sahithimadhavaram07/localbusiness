@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Login — IndiaBiz{% endblock %}
+{% block content %}
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="auth-icon">🇮🇳</div>
+      <h2>Welcome Back</h2>
+      <p>Login to your IndiaBiz account</p>
+    </div>
+    <form action="{{ url_for('login') }}" method="post" class="auth-form">
+      <input type="hidden" name="lat" id="latField" value="">
+      <input type="hidden" name="lng" id="lngField" value="">
+      <div class="form-group">
+        <label>Login As</label>
+        <div class="role-selector">
+          <label class="role-option"><input type="radio" name="role" value="customer" checked onchange="handleRoleChange('customer')"><div class="role-card"><span class="role-icon">🛍️</span>Customer</div></label>
+          <label class="role-option"><input type="radio" name="role" value="business_owner" onchange="handleRoleChange('business_owner')"><div class="role-card"><span class="role-icon">🏪</span>Business Owner</div></label>
+          <label class="role-option"><input type="radio" name="role" value="admin" onchange="handleRoleChange('admin')"><div class="role-card"><span class="role-icon">⚙️</span>Admin</div></label>
+        </div>
+      </div>
+      <div id="locationBox" class="location-capture">
+        <div class="location-icon">📍</div>
+        <p><strong>Share your location</strong></p>
+        <p class="location-sub">We'll show businesses near you right after login</p>
+        <button type="button" class="btn-locate-now" id="locateBtn" onclick="captureLocation()">📍 Detect My Location</button>
+        <div id="locStatus" class="loc-status" style="display:none;"></div>
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" name="email" required placeholder="your@email.com" />
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" name="password" required placeholder="••••••••" />
+      </div>
+      <button type="submit" class="btn-submit">Login</button>
+    </form>
+    <div class="auth-footer">Don't have an account? <a href="{{ url_for('register') }}">Register here</a></div>
+    <div class="demo-creds"><strong>Demo:</strong> admin@indiabiz.com / admin123 (Admin)<br>owner1@indiabiz.com / owner123 (Business Owner)</div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function handleRoleChange(role) {
+  document.getElementById('locationBox').style.display = role === 'customer' ? 'block' : 'none';
+}
+function captureLocation() {
+  if (!navigator.geolocation) { showLocStatus('⚠️ Geolocation not supported.', '#721c24'); return; }
+  const btn = document.getElementById('locateBtn');
+  btn.textContent = '⏳ Detecting...'; btn.disabled = true;
+  navigator.geolocation.getCurrentPosition(
+    function(pos) {
+      document.getElementById('latField').value = pos.coords.latitude;
+      document.getElementById('lngField').value = pos.coords.longitude;
+      showLocStatus('✅ Location captured! Nearby businesses shown after login.', '#155724');
+      btn.textContent = '✅ Location Detected';
+    },
+    function() {
+      showLocStatus('⚠️ Could not detect location. You can set it after login.', '#856404');
+      btn.textContent = '📍 Try Again'; btn.disabled = false;
+    }, { timeout: 8000 }
+  );
+}
+function showLocStatus(msg, color) {
+  const el = document.getElementById('locStatus');
+  el.style.display = 'block'; el.textContent = msg; el.style.color = color;
+}
+handleRoleChange('customer');
+</script>
+{% endblock %}

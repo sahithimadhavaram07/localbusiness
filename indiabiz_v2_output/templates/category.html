@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}{{ category }} in {{ place['name'] }} — IndiaBiz{% endblock %}
+{% block content %}
+<div class="place-page">
+  <div class="place-hero">
+    <div class="container">
+      <div class="breadcrumb">
+        <a href="{{ url_for('index') }}">Home</a> →
+        <a href="{{ url_for('city_page', city_id=place['city_id']) }}">{{ place['city_name'] }}</a> →
+        <a href="{{ url_for('place', place_id=place['id']) }}">{{ place['name'] }}</a> →
+        {{ category }}
+      </div>
+      <div class="place-zone-badge">{{ category }}</div>
+      <h1>{{ category }} <span style="color:var(--gray);font-size:22px;">in {{ place['name'] }}</span></h1>
+      <p class="place-description">{{ businesses|length }} verified businesses found</p>
+    </div>
+  </div>
+  <div class="container" style="padding-bottom:60px;">
+    {% if businesses %}
+    <div class="businesses-grid" style="padding-top:30px;">
+      {% for biz in businesses %}
+      <a href="{{ url_for('business_detail', biz_id=biz['id']) }}" class="biz-card">
+        <div class="biz-card-top">
+          <span class="biz-category-badge">{{ biz['category'] }}</span>
+          <span class="biz-status approved">✓ Verified</span>
+        </div>
+        <h3>{{ biz['name'] }}</h3>
+        <div class="biz-uid">🪪 {{ biz['business_uid'] }}</div>
+        <p class="biz-address">{{ biz['address'] }}</p>
+        <p class="biz-desc">{{ biz['description'][:80] }}...</p>
+        <div class="biz-footer">
+          <span>📞 {{ biz['phone'] }}</span>
+          <span>🕐 {{ biz['timing'] }}</span>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">🔍</div>
+      <h3>No businesses in this category yet</h3>
+      <a href="{{ url_for('add_business') }}" class="btn-hero">List Your Business</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

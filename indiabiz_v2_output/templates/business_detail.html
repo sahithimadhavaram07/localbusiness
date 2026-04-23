@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}{{ biz['name'] }} — IndiaBiz{% endblock %}
+{% block content %}
+<div class="biz-detail-page">
+  <div class="biz-detail-hero">
+    <div class="container">
+      <div class="breadcrumb">
+        <a href="{{ url_for('index') }}">Home</a> →
+        <a href="{{ url_for('state_page', state_id=1) }}">{{ biz['state_name'] }}</a> →
+        <a href="{{ url_for('city_page', city_id=biz['city_id']) }}">{{ biz['city_name'] }}</a> →
+        <a href="{{ url_for('place', place_id=biz['place_id_val']) }}">{{ biz['place_name'] }}</a> →
+        {{ biz['name'] }}
+      </div>
+      <div class="biz-detail-header">
+        <div>
+          <span class="biz-category-badge lg">{{ biz['category'] }}</span>
+          <h1>{{ biz['name'] }}</h1>
+          <div class="biz-uid-detail">🪪 Business ID: {{ biz['business_uid'] }}</div>
+          <p class="biz-detail-address">📍 {{ biz['address'] }} · {{ biz['place_name'] }}, {{ biz['city_name'] }}, {{ biz['state_name'] }}</p>
+        </div>
+        {% if session.get('role') == 'customer' %}
+        <a href="{{ url_for('book_appointment', biz_id=biz['id']) }}" class="btn-book">📅 Book Appointment</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="biz-detail-main">
+
+      <div class="detail-card">
+        <h2>About</h2>
+        <p style="font-size:15px;color:var(--gray);">{{ biz['description'] }}</p>
+      </div>
+
+      <div class="detail-card">
+        <h2>Contact & Hours</h2>
+        <div class="contact-grid">
+          <div class="contact-item"><span>📞</span><span>{{ biz['phone'] }}</span></div>
+          {% if biz['email'] %}<div class="contact-item"><span>📧</span><span>{{ biz['email'] }}</span></div>{% endif %}
+          <div class="contact-item"><span>🕐</span><span>{{ biz['timing'] }}</span></div>
+          <div class="contact-item"><span>📍</span><span>{{ biz['address'] }}</span></div>
+        </div>
+        {% if biz['lat'] and biz['lng'] %}
+        <a href="https://maps.google.com/?q={{ biz['lat'] }},{{ biz['lng'] }}" target="_blank" class="btn-maps">🗺️ Open in Google Maps</a>
+        {% endif %}
+      </div>
+
+      <div class="detail-card">
+        <h2>Reviews ({{ reviews|length }})</h2>
+        {% if reviews %}
+          {% for r in reviews %}
+          <div class="review-item">
+            <div class="review-header">
+              <strong>{{ r['customer_name'] }}</strong>
+              <span class="stars">
+                {% for i in range(r['rating']) %}⭐{% endfor %}
+              </span>
+              <small>{{ r['created_at'][:10] }}</small>
+            </div>
+            {% if r['comment'] %}<p style="font-size:14px;color:var(--gray);">{{ r['comment'] }}</p>{% endif %}
+          </div>
+          {% endfor %}
+        {% else %}
+          <p class="empty-text">No reviews yet. Be the first!</p>
+        {% endif %}
+
+        {% if session.get('role') == 'customer' %}
+        <div class="review-form">
+          <h3>Leave a Review</h3>
+          <form action="{{ url_for('add_review', biz_id=biz['id']) }}" method="post">
+            <div class="star-rating-input">
+              {% for i in [5,4,3,2,1] %}
+              <input type="radio" name="rating" id="star{{ i }}" value="{{ i }}" {% if i==5 %}required{% endif %}>
+              <label for="star{{ i }}">★</label>
+              {% endfor %}
+            </div>
+            <textarea name="comment" rows="3" placeholder="Share your experience..."></textarea>
+            <button type="submit" class="btn-submit" style="max-width:160px;padding:10px;">Submit Review</button>
+          </form>
+        </div>
+        {% endif %}
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

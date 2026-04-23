@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Nearby Businesses — IndiaBiz{% endblock %}
+{% block content %}
+<div class="customer-home">
+
+  <!-- Header -->
+  <div class="cust-header">
+    <div class="container">
+      <h1>👋 Hello, {{ session['user_name'] }}!</h1>
+      <p>Here are businesses near you — within <strong>{{ radius|int }} km</strong></p>
+    </div>
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="cust-filter-bar">
+    <div class="container">
+      <div class="filter-scroll">
+        <a href="{{ url_for('customer_home') }}?radius={{ radius }}"
+           class="filter-chip {% if not category %}active{% endif %}">All</a>
+        {% for cat in categories %}
+        <a href="{{ url_for('customer_home') }}?category={{ cat['category']|urlencode }}&radius={{ radius }}"
+           class="filter-chip {% if category == cat['category'] %}active{% endif %}">
+          {{ cat['category'] }}
+        </a>
+        {% endfor %}
+      </div>
+      <div class="radius-row">
+        <span style="font-size:13px;color:var(--gray);">Radius:</span>
+        {% for r in [2, 5, 10, 15, 25, 50] %}
+        <a href="{{ url_for('customer_home') }}?radius={{ r }}{% if category %}&category={{ category|urlencode }}{% endif %}"
+           class="radius-chip {% if radius == r %}active{% endif %}">{{ r }}km</a>
+        {% endfor %}
+        <a href="{{ url_for('set_location') }}" style="margin-left:auto;font-size:13px;color:var(--teal);font-weight:600;">📍 Change Location</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div class="container" style="padding-top:24px;padding-bottom:60px;">
+    {% if businesses %}
+    <p style="font-size:14px;color:var(--gray);margin-bottom:20px;">
+      Found <strong>{{ businesses|length }}</strong> businesses{% if category %} in <strong>{{ category }}</strong>{% endif %}
+    </p>
+    <div class="businesses-grid">
+      {% for biz in businesses %}
+      <a href="{{ url_for('business_detail', biz_id=biz['id']) }}" class="biz-card">
+        <div class="biz-card-top">
+          <span class="biz-category-badge">{{ biz['category'] }}</span>
+          <span class="distance-badge">{{ biz['distance'] }} km away</span>
+        </div>
+        <h3>{{ biz['name'] }}</h3>
+        <div class="biz-uid">🪪 {{ biz['business_uid'] }}</div>
+        <div class="biz-location">📍 {{ biz['place_name'] }}, {{ biz['city_name'] }}, {{ biz['state_name'] }}</div>
+        <p class="biz-address">{{ biz['address'] }}</p>
+        <div class="biz-footer">
+          <span>📞 {{ biz['phone'] }}</span>
+          <span>🕐 {{ biz['timing'] }}</span>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">🔍</div>
+      <h3>No businesses found nearby</h3>
+      <p>Try increasing the radius or selecting a different category.</p>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:16px;">
+        <a href="{{ url_for('customer_home') }}?radius=25" class="btn-hero">Try 25 km radius</a>
+        <a href="{{ url_for('explore') }}" class="btn-hero btn-outline">Browse by State</a>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

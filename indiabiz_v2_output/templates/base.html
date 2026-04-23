@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}IndiaBiz — India's Local Business Hub{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <nav class="navbar">
+    <a href="{{ url_for('index') }}" class="nav-brand">
+      <span class="brand-icon">🇮🇳</span> IndiaBiz
+    </a>
+    <div class="nav-links">
+      <a href="{{ url_for('explore') }}">Explore</a>
+      <a href="{{ url_for('nearby') }}">📍 Nearby</a>
+      <a href="{{ url_for('search') }}">🔍 Search</a>
+      {% if session.get('role') == 'admin' %}
+        <a href="{{ url_for('admin_dashboard') }}">Admin Panel</a>
+      {% elif session.get('role') == 'business_owner' %}
+        <a href="{{ url_for('owner_dashboard') }}">My Dashboard</a>
+        <a href="{{ url_for('add_business') }}">+ Add Business</a>
+      {% elif session.get('role') == 'customer' %}
+        <a href="{{ url_for('my_appointments') }}">My Appointments</a>
+      {% endif %}
+      {% if session.get('user_id') %}
+        <span class="nav-user">👤 {{ session['user_name'] }}</span>
+        <a href="{{ url_for('logout') }}" class="btn-nav">Logout</a>
+      {% else %}
+        <a href="{{ url_for('login') }}" class="btn-nav">Login</a>
+        <a href="{{ url_for('register') }}" class="btn-nav btn-primary">Register</a>
+      {% endif %}
+    </div>
+  </nav>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-container">
+        {% for cat, msg in messages %}
+          <div class="flash flash-{{ cat }}">{{ msg }} <span class="flash-close" onclick="this.parentElement.remove()">✕</span></div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <main>{% block content %}{% endblock %}</main>
+
+  <footer class="footer">
+    <p>© 2025 IndiaBiz — Discover Local Businesses Across India | 🇮🇳 Made for India</p>
+  </footer>
+  <script src="{{ url_for('static', filename='main.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

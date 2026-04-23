@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Set Your Location — IndiaBiz{% endblock %}
+{% block content %}
+<div class="auth-page">
+  <div class="auth-card" style="max-width:480px;">
+    <div class="auth-header">
+      <div class="auth-icon">📍</div>
+      <h2>Where Are You?</h2>
+      <p>Share your location so we can show nearby businesses</p>
+    </div>
+    <div class="location-capture" style="margin-bottom:20px;">
+      <button type="button" class="btn-locate-now" id="locateBtn" onclick="captureAndGo()">📍 Detect My Location Automatically</button>
+      <div id="locStatus" style="margin-top:10px;font-size:14px;display:none;"></div>
+    </div>
+    <div style="text-align:center;color:var(--gray);font-size:13px;margin:12px 0;">— or enter manually —</div>
+    <form action="{{ url_for('set_location') }}" method="post" class="auth-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Latitude</label>
+          <input type="number" name="lat" id="latInput" step="0.000001" placeholder="e.g. 17.385044" required />
+        </div>
+        <div class="form-group">
+          <label>Longitude</label>
+          <input type="number" name="lng" id="lngInput" step="0.000001" placeholder="e.g. 78.486671" required />
+        </div>
+      </div>
+      <button type="submit" class="btn-submit">Show Nearby Businesses →</button>
+    </form>
+    <div style="text-align:center;margin-top:16px;">
+      <a href="{{ url_for('explore') }}" style="font-size:13px;color:var(--gray);">Skip — Browse by State instead</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function captureAndGo() {
+  if (!navigator.geolocation) { alert('Geolocation not supported.'); return; }
+  const btn = document.getElementById('locateBtn');
+  btn.textContent = '⏳ Detecting...'; btn.disabled = true;
+  navigator.geolocation.getCurrentPosition(
+    function(pos) {
+      document.getElementById('latInput').value = pos.coords.latitude.toFixed(6);
+      document.getElementById('lngInput').value = pos.coords.longitude.toFixed(6);
+      const st = document.getElementById('locStatus');
+      st.style.display = 'block'; st.textContent = '✅ Location found! Click below to continue.'; st.style.color = '#155724';
+      btn.textContent = '✅ Location Detected';
+    },
+    function() {
+      const st = document.getElementById('locStatus');
+      st.style.display = 'block'; st.textContent = '⚠️ Could not auto-detect. Enter manually below.'; st.style.color = '#856404';
+      btn.textContent = '📍 Try Again'; btn.disabled = false;
+    }, { timeout: 8000 }
+  );
+}
+</script>
+{% endblock %}

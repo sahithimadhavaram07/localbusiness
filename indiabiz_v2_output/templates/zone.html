@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}{{ zone }} Hyderabad — IndiaBiz{% endblock %}
+{% block content %}
+<div class="zone-page">
+  <div class="zone-header">
+    <div class="zone-header-inner">
+      <div class="breadcrumb">
+        <a href="{{ url_for('index') }}">Home</a> →
+        <a href="{{ url_for('state_page', state_id=2) }}">Telangana</a> →
+        <a href="{{ url_for('city_page', city_id=city['id']) }}">Hyderabad</a> →
+        {{ zone }} Zone
+      </div>
+      <h1>{{ zone }} Hyderabad</h1>
+      <p>{{ places|length }} areas with local businesses</p>
+      <div class="zone-nav">
+        {% for z in ['North','South','East','West','Central'] %}
+        <a href="{{ url_for('zone', city_id=city['id'], zone_name=z) }}"
+           class="zone-nav-btn {% if z == zone %}active{% endif %}"
+           style="{% if z == zone %}background:var(--teal);color:var(--white)!important;border-color:var(--teal);{% endif %}">
+          {{ z }}
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="places-grid">
+      {% for place in places %}
+      <a href="{{ url_for('place', place_id=place['id']) }}" class="place-card">
+        <div class="place-card-header">
+          <div class="place-icon">🏘️</div>
+          <div>
+            <h3>{{ place['name'] }}</h3>
+            <div class="famous-tag">{{ place['famous_for'][:40] if place['famous_for'] else '' }}</div>
+          </div>
+        </div>
+        <div class="place-card-body">
+          <p class="place-desc">{{ place['description'] }}</p>
+          <span class="explore-link" style="color:var(--teal);">Browse Businesses →</span>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

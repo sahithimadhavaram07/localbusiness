@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Owner Dashboard — IndiaBiz{% endblock %}
+{% block content %}
+<div class="dashboard-page">
+  <div class="dashboard-header">
+    <h1>🏪 Owner Dashboard</h1>
+    <p>Welcome, {{ session['user_name'] }}! Manage your businesses and appointments.</p>
+  </div>
+  <div class="container">
+
+    <div class="section-block" style="margin-bottom:30px;">
+      <div class="section-header">
+        <h2>My Businesses</h2>
+        <a href="{{ url_for('add_business') }}" class="btn-add">+ Add New Business</a>
+      </div>
+      {% if businesses %}
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Business ID</th><th>Name</th><th>Category</th><th>Location</th><th>Status</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for biz in businesses %}
+            <tr>
+              <td><span class="uid-code">{{ biz['business_uid'] }}</span></td>
+              <td><strong>{{ biz['name'] }}</strong></td>
+              <td><span class="biz-category-badge">{{ biz['category'] }}</span></td>
+              <td>{{ biz['place_name'] }}, {{ biz['city_name'] }}</td>
+              <td><span class="biz-status {{ biz['status'] }}">{{ biz['status'].title() }}</span></td>
+              <td><a href="{{ url_for('business_detail', biz_id=biz['id']) }}" class="btn-sm">View</a></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty-state small">
+        <p>No businesses yet. <a href="{{ url_for('add_business') }}">Add your first business →</a></p>
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="section-block">
+      <h2>Appointments ({{ appointments|length }})</h2>
+      {% if appointments %}
+      <div class="appts-list" style="margin-top:16px;">
+        {% for a in appointments %}
+        <div class="appt-card status-{{ a['status'] }}">
+          <div class="appt-left">
+            <div class="appt-status-badge {{ a['status'] }}">{{ a['status'].upper() }}</div>
+            <h3>{{ a['biz_name'] }}</h3>
+            <div class="appt-category">Customer: {{ a['customer_name'] }} · 📞 {{ a['customer_phone'] }}</div>
+          </div>
+          <div class="appt-right">
+            <div class="appt-detail"><span>📅</span><span>{{ a['date'] }}</span></div>
+            <div class="appt-detail"><span>🕐</span><span>{{ a['time'] }}</span></div>
+            {% if a['notes'] %}<div class="appt-detail"><span>📝</span><span>{{ a['notes'] }}</span></div>{% endif %}
+            <div class="appt-actions">
+              <form action="{{ url_for('update_appointment', appt_id=a['id']) }}" method="post" style="display:inline;">
+                <input type="hidden" name="status" value="confirmed">
+                <button type="submit" class="btn-confirm">Confirm</button>
+              </form>
+              <form action="{{ url_for('update_appointment', appt_id=a['id']) }}" method="post" style="display:inline;">
+                <input type="hidden" name="status" value="cancelled">
+                <button type="submit" class="btn-cancel">Cancel</button>
+              </form>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state small"><p class="empty-text">No appointments yet.</p></div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}

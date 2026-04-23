@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}{{ place['name'] }} — IndiaBiz{% endblock %}
+{% block content %}
+<div class="place-page">
+  <div class="place-hero">
+    <div class="container">
+      <div class="breadcrumb">
+        <a href="{{ url_for('index') }}">Home</a> →
+        <a href="{{ url_for('explore') }}">Explore</a> →
+        <a href="{{ url_for('state_page', state_id=place['state_id']) }}">{{ place['state_name'] }}</a> →
+        <a href="{{ url_for('city_page', city_id=place['city_id']) }}">{{ place['city_name'] }}</a> →
+        {{ place['name'] }}
+      </div>
+      {% if place['zone'] %}
+      <div class="place-zone-badge">{{ place['zone'] }} Zone</div>
+      {% endif %}
+      <h1>{{ place['name'] }}</h1>
+      {% if place['description'] %}
+      <p class="place-description">{{ place['description'] }}</p>
+      {% endif %}
+      {% if place['famous_for'] %}
+      <div class="famous-section">
+        <h3>🌟 Famous For</h3>
+        <div class="famous-tags">
+          {% for tag in place['famous_for'].split(',') %}
+          <span class="famous-pill">{{ tag.strip() }}</span>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="container">
+
+    {% if highlights %}
+    <div class="section-block" style="margin-bottom:40px;">
+      <h2 style="margin-bottom:6px;">✨ {{ place['name'] }} Highlights</h2>
+      <p style="color:var(--gray);font-size:14px;margin-bottom:24px;">What to eat, shop, explore and experience here</p>
+
+      {% for cat_name, items in highlights.items() %}
+      {% if cat_name == 'Food' %}
+        {% set bg = '#fff3e0' %}{% set accent = '#e65100' %}{% set icon = '🍽️' %}
+      {% elif cat_name == 'Shopping' %}
+        {% set bg = '#fce4ec' %}{% set accent = '#880e4f' %}{% set icon = '🛍️' %}
+      {% elif cat_name == 'Heritage' %}
+        {% set bg = '#e8eaf6' %}{% set accent = '#283593' %}{% set icon = '🏛️' %}
+      {% elif cat_name == 'Experience' %}
+        {% set bg = '#e8f5e9' %}{% set accent = '#1b5e20' %}{% set icon = '🎯' %}
+      {% elif cat_name == 'Market' %}
+        {% set bg = '#fff8e1' %}{% set accent = '#f57f17' %}{% set icon = '🏪' %}
+      {% else %}
+        {% set bg = '#f5f5f5' %}{% set accent = '#555' %}{% set icon = '⭐' %}
+      {% endif %}
+
+      <div style="margin-bottom:30px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+          <span style="font-size:22px;">{{ icon }}</span>
+          <h3 style="margin:0;font-size:17px;color:{{ accent }};">{{ cat_name }}</h3>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;">
+          {% for h in items %}
+          <div style="background:{{ bg }};border:1.5px solid {{ accent }}33;border-radius:12px;padding:16px;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+              <span style="font-size:26px;">{{ h['emoji'] }}</span>
+              <div style="font-weight:700;font-size:15px;color:var(--charcoal);">{{ h['title'] }}</div>
+            </div>
+            <div style="font-size:12px;color:{{ accent }};font-weight:600;margin-bottom:6px;">📍 {{ h['where_to_find'] }}</div>
+            <div style="font-size:12px;color:var(--gray);font-style:italic;background:rgba(0,0,0,0.05);border-radius:6px;padding:8px 10px;line-height:1.5;">💡 {{ h['tip'] }}</div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if categories %}
+    <div class="section-block">
+      <div class="section-header">
+        <h2>Browse by Category</h2>
+        <span style="font-size:14px;color:var(--gray);">{{ categories|length }} categories available</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;">
+        {% for cat in categories %}
+        <a href="{{ url_for('place_category', place_id=place['id'], category=cat['name']) }}"
+           style="background:var(--gray-light);border:1.5px solid var(--border);border-radius:10px;padding:16px;display:flex;justify-content:space-between;align-items:center;color:var(--charcoal)!important;transition:all .2s;"
+           onmouseover="this.style.borderColor='var(--teal)';this.style.background='var(--teal-light)'"
+           onmouseout="this.style.borderColor='var(--border)';this.style.background='var(--gray-light)'">
+          <span style="font-weight:600;font-size:14px;">{{ cat['name'] }}</span>
+          <span style="background:var(--teal);color:var(--white);padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;">{{ cat['count'] }}</span>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">🏗️</div>
+      <h3>No Businesses Yet</h3>
+      <p>Be the first to list your business in {{ place['name'] }}!</p>
+      <a href="{{ url_for('add_business') }}" class="btn-hero">List Your Business</a>
+    </div>
+    {% endif %}
+
+    <div class="section-block">
+      <h2>📍 Map</h2>
+      <div class="map-container" id="map"></div>
+      <a href="https://maps.google.com/?q={{ place['lat'] }},{{ place['lng'] }}" target="_blank" class="btn-maps">Open in Google Maps →</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function initMap() {
+  const pos = { lat: {{ place['lat'] }}, lng: {{ place['lng'] }} };
+  const map = new google.maps.Map(document.getElementById('map'), { zoom: 14, center: pos });
+  new google.maps.Marker({ position: pos, map, title: '{{ place["name"] }}' });
+}
+</script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?callback=initMap"></script>
+{% endblock %}

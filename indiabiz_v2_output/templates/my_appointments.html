@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}My Appointments — IndiaBiz{% endblock %}
+{% block content %}
+<div class="dashboard-page">
+  <div class="dashboard-header">
+    <h1>📅 My Appointments</h1>
+    <p>Track all your business appointments in one place</p>
+  </div>
+  <div class="container">
+    {% if appts %}
+    <div class="appts-list">
+      {% for a in appts %}
+      <div class="appt-card status-{{ a['status'] }}">
+        <div class="appt-left">
+          <div class="appt-status-badge {{ a['status'] }}">{{ a['status'].upper() }}</div>
+          <h3>{{ a['biz_name'] }}</h3>
+          <div class="appt-category">{{ a['category'] }}</div>
+          <div style="font-size:12px;color:var(--gray);font-family:monospace;margin-top:4px;">🪪 {{ a['business_uid'] }}</div>
+          <div style="font-size:12px;color:var(--gray);margin-top:2px;">📍 {{ a['place_name'] }}, {{ a['city_name'] }}</div>
+        </div>
+        <div class="appt-right">
+          <div class="appt-detail"><span>📅</span><span>{{ a['date'] }}</span></div>
+          <div class="appt-detail"><span>🕐</span><span>{{ a['time'] }}</span></div>
+          {% if a['notes'] %}
+          <div class="appt-detail"><span>📝</span><span>{{ a['notes'] }}</span></div>
+          {% endif %}
+          <a href="{{ url_for('business_detail', biz_id=a['business_id']) }}" class="btn-sm" style="margin-top:8px;">View Business →</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">📅</div>
+      <h3>No appointments yet</h3>
+      <p>Explore businesses and book your first appointment!</p>
+      <a href="{{ url_for('explore') }}" class="btn-hero">Explore Businesses</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
